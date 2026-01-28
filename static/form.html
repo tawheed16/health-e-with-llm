@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Health-E • Intake</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="wrapper">
+    <div class="card" role="region" aria-label="Health-E Intake Form">
+      <div class="header">
+        <div class="logo" aria-hidden="true">HE</div>
+        <div class="title-wrap">
+          <h1>Health-E Intake</h1>
+          <p>Provide your basic details to proceed.</p>
+        </div>
+      </div>
+
+      <div class="content">
+        <form id="intakeForm" novalidate>
+          <div class="field">
+            <label for="name">Name (characters only)</label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              placeholder="e.g., John Doe"
+              autocomplete="name"
+              inputmode="text"
+              required
+            />
+            <div class="error" id="nameError">Name must contain letters and spaces only.</div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="age">Age (numbers only)</label>
+              <input
+                id="age"
+                name="age"
+                type="number"
+                placeholder="e.g., 30"
+                inputmode="numeric"
+                min="0"
+                max="120"
+                required
+              />
+              <div class="error" id="ageError">Enter a valid age (0–120).</div>
+            </div>
+
+            <div class="field">
+              <label for="sex">Sex</label>
+              <select id="sex" name="sex" required>
+                <option value="" selected disabled>Select one</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+              <div class="error" id="sexError">Please select Male or Female.</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="checkbox">
+              <input id="accept" name="accept" type="checkbox" required />
+              <label for="accept" style="margin:0;">
+                I accept Health-E's
+                <a href="tc.html" id="openTcLink">Terms and Conditions</a>
+              </label>
+            </div>
+            <div class="error" id="acceptError">You must accept the Terms and Conditions.</div>
+          </div>
+
+          <div class="actions">
+            <button id="proceedBtn" class="primary" type="submit" disabled>Proceed</button>
+          </div>
+
+          <div class="footer-note">
+            By proceeding, you confirm the above details are accurate. This is a prototype intake screen (frontend only).
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Terms & Conditions modal overlay (loads tc.html inside iframe) -->
+  <div class="modal-overlay" id="tcModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Terms and Conditions">
+      <iframe id="tcFrame" title="Terms and Conditions" src="tc.html"></iframe>
+    </div>
+  </div>
+
+  <script src="form.js"></script>
+</body>
+</html>
