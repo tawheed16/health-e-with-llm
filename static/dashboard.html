@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Health-E • Doctor Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="wrapper">
+    <div class="card" role="region" aria-label="Health-E Doctor Dashboard">
+      <div class="header">
+        <div class="logo" aria-hidden="true">HE</div>
+        <div class="title-wrap">
+          <h1>Doctor Dashboard</h1>
+          <p>Enter a patient Ref ID to view the PDF report.</p>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="field">
+          <label for="refId">Reference ID</label>
+          <input id="refId" type="text" placeholder="e.g., A7F2K9X1QW8Z3M0N5P2R" />
+          <div class="hint">20 characters (A–Z, 0–9)</div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" id="viewBtn">View PDF</button>
+        </div>
+
+        <div class="footer-note" id="status"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

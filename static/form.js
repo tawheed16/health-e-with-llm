@@ -1,3 +1,5 @@
+// static/form.js
+
 const nameEl = document.getElementById("name");
 const ageEl = document.getElementById("age");
 const sexEl = document.getElementById("sex");
@@ -14,7 +16,7 @@ const tcModal = document.getElementById("tcModal");
 const openTcLink = document.getElementById("openTcLink");
 
 function sanitizeName(value) {
-  // Keep letters and spaces only (also supports common name punctuation? user asked characters only, so strict)
+  // Keep letters and spaces only (strict)
   return value.replace(/[^A-Za-z\s]/g, "").replace(/\s+/g, " ").trimStart();
 }
 
@@ -59,6 +61,27 @@ function updateProceedButton() {
   proceedBtn.disabled = !canProceed();
 }
 
+// Helper: safe JSON parse (for error messages)
+async function safeReadJson(res) {
+  try {
+    return await res.json();
+  } catch (_) {
+    return null;
+  }
+}
+
+// Helper: set loading UI
+function setLoading(isLoading) {
+  if (isLoading) {
+    proceedBtn.disabled = true;
+    proceedBtn.dataset.originalText = proceedBtn.textContent;
+    proceedBtn.textContent = "Submitting...";
+  } else {
+    proceedBtn.disabled = !canProceed();
+    proceedBtn.textContent = proceedBtn.dataset.originalText || "Proceed";
+  }
+}
+
 // Live input rules
 nameEl.addEventListener("input", (e) => {
   const cleaned = sanitizeName(e.target.value);
@@ -68,7 +91,6 @@ nameEl.addEventListener("input", (e) => {
 });
 
 ageEl.addEventListener("input", () => {
-  // type=number already restricts most, still validate range
   updateErrors();
   updateProceedButton();
 });
@@ -106,21 +128,59 @@ window.addEventListener("message", (event) => {
   }
 });
 
-// Submit handler (frontend only placeholder)
-form.addEventListener("submit", (e) => {
+// Submit handler (now calls backend to create Ref ID + PDF)
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
   updateErrors();
   updateProceedButton();
 
   if (!canProceed()) return;
 
-  // For now just show data (later you’ll POST to backend that talks to MedGemma)
   const payload = {
     name: nameEl.value.trim(),
     age: Number(ageEl.value),
     sex: sexEl.value,
-    acceptedTerms: acceptEl.checked
+    acceptedTerms: acceptEl.checked,
   };
 
-  alert("Proceeding with:\n" + JSON.stringify(payload, null, 2));
+  try {
+    setLoading(true);
+
+    const res = await fetch("/api/intake/start", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await safeReadJson(res);
+
+    if (!res.ok) {
+      const msg = (data && (data.detail || data.message)) || `Submission failed (${res.status})`;
+      throw new Error(msg);
+    }
+
+    // Expected response: { ref_id, report_pdf_url }
+    const refId = data?.ref_id;
+    const pdfUrl = data?.report_pdf_url;
+
+    if (!refId) throw new Error("Server did not return a reference ID.");
+
+    // Option A: simple alert + optional redirect
+    alert(
+      "✅ Submitted!\n\n" +
+      "Reference ID (give to doctor): " + refId + "\n" +
+      (pdfUrl ? ("PDF: " + pdfUrl + "\n") : "")
+    );
+
+    // OPTIONAL: Auto-open PDF in new tab
+    // if (pdfUrl) window.open(pdfUrl, "_blank");
+
+    // OPTIONAL: redirect to your doctor dashboard (if you add it)
+    // window.location.href = "/static/dashboard.html?ref=" + encodeURIComponent(refId);
+
+  } catch (err) {
+    alert("❌ " + (err?.message || "Something went wrong"));
+  } finally {
+    setLoading(false);
+  }
 });
